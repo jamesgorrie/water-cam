@@ -53,7 +53,7 @@ bg.onload = function() {
     ripple = ctx.getImageData(0, 0, width, height);
     setInterval(run, delay);
 };
-bg.src = '../src/img/i2.jpg';
+bg.src = 'src/img/i2.jpg';
 
 for (var i = 0; i < size; i++) {
     last_map[i] = ripplemap[i] = 0;
