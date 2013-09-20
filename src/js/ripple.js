@@ -20,34 +20,20 @@ var canvas = document.getElementById('c'),
     ripple,
     texture,
     line_width = 20,
-    step = line_width * 2, 
+    step = line_width * 2,
     count = height / line_width;
-    
+
 canvas.width = width;
 canvas.height = height;
 
-/**
- * Water ripple demo can work with any bitmap image
- * (see example here: http://media.chikuyonok.ru/ripple/)
- * But I need to draw simple artwork to bypass 1k limitation
- */
-with (ctx) {
-    // fillStyle = '#a2ddf8';
-    // fillRect(0, 0, width, height);
-    
-    // fillStyle = '#07b';
-    // save();
-    // rotate(-0.785);
-    // for (var i = 0; i < count; i++) {
-    //     fillRect(-width, i * step, width * 3, line_width);
-    // }
-    
-    // restore();
-}
-
 var bg = new Image();
-
 bg.onload = function() {
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.scale(1.75, 1);
+    ctx.arc((width/3.5), (height/2), (width/3.5), 0, 2 * Math.PI, false);
+    ctx.clip();
+    ctx.scale(1, 1);
     ctx.drawImage(this, 0, 0);
     texture = ctx.getImageData(0, 0, width, height);
     ripple = ctx.getImageData(0, 0, width, height);
@@ -90,14 +76,14 @@ function disturb(dx, dy) {
  */
 function newframe() {
     var i, a, b, data, cur_pixel, new_pixel, old_data;
-    
+
     i = oldind;
     oldind = newind;
     newind = i;
-    
+
     i = 0;
     mapind = oldind;
-    
+
     // create local copies of variables to decrease
     // scope lookup time in Firefox
     var _width = width,
@@ -110,26 +96,26 @@ function newframe() {
         _td = texture.data,
         _half_width = half_width,
         _half_height = half_height;
-    
+
     for (var y = 0; y < _height; y++) {
         for (var x = 0; x < _width; x++) {
             data = (
-                _ripplemap[_mapind - _width] + 
-                _ripplemap[_mapind + _width] + 
-                _ripplemap[_mapind - 1] + 
+                _ripplemap[_mapind - _width] +
+                _ripplemap[_mapind + _width] +
+                _ripplemap[_mapind - 1] +
                 _ripplemap[_mapind + 1]) >> 1;
-                
+
             data -= _ripplemap[_newind + i];
             data -= data >> 5;
-            
+
             _ripplemap[_newind + i] = data;
 
             //where data=0 then still, where data>0 then wave
             data = 1024 - data;
-            
+
             old_data = _last_map[i];
             _last_map[i] = data;
-            
+
             if (old_data != data) {
                 //offsets
                 a = (((x - _half_width) * data / 1024) << 0) + _half_width;
@@ -143,17 +129,17 @@ function newframe() {
 
                 new_pixel = (a + (b * _width)) * 4;
                 cur_pixel = i * 4;
-                
+
                 _rd[cur_pixel] = _td[new_pixel];
                 _rd[cur_pixel + 1] = _td[new_pixel + 1];
                 _rd[cur_pixel + 2] = _td[new_pixel + 2];
             }
-            
+
             ++_mapind;
             ++i;
         }
     }
-    
+
     mapind = _mapind;
 }
 
